@@ -7,7 +7,7 @@ from django.contrib.auth.forms import User
 import openai
 import os
 
-import base64
+# import base64
 import requests
 from django.http import JsonResponse
 
