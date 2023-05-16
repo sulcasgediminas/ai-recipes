@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8">
+            <h2 class="mb-3">Find a Recipe</h2>
+            <form method="get">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="ingredient">Enter an ingredient:</label>
+                    <input type="text" name="ingredient" class="form-control" id="ingredient" placeholder="e.g. chicken, broccoli, pasta" value="{{ request.GET.ingredient }}">
+                    <label for="ingredient">Enter an cuisine:</label>
+                    <input type="text" name="cuisine" class="form-control" id="cuisine" placeholder="e.g. italian, asian, french" value="{{ request.GET.cuisine }}">
+                </div>
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+        </div>
+    </div>
+    {% if recipe_suggestions %}
+    <div class="row mt-5">
+        <div class="col-md-8">
+            <h3 class="mb-3">Recipe Suggestions:</h3>
+            <p>{{ recipe_suggestions|safe }}</p>
+            {% if image %}
+            <img src="{{ image.url }}" alt="Generated Recipe Image">
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    {% if recipes %}
+    <div class="row mt-5">
+        <div class="col-md-8">
+            <h3 class="mb-3">Recipes:</h3>
+            <ul class="list-group">
+                {% for recipe in recipes %}
+                <li class="list-group-item">{{ recipe.name }} <a href="{{ recipe.get_absolute_url }}">View Recipe</a></li>
+                {% empty %}
+                <p>No recipes found.</p>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

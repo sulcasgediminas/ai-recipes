@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Recipe Generator</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div id="recipe-container"></div>
+    <div id="image-container"></div>
+    <script>
+        $.getJSON("/generate_recipe_and_image/", function(data) {
+            var recipe = data["recipe"];
+            var imageBase64 = data["image"];
+            var imageSrc = "data:image/jpeg;base64," + imageBase64;
+            $("#recipe-container").text(recipe);
+            $("#image-container").html('<img src="' + imageSrc + '">');
+        });
+    </script>
+</body>
+</html>
+{% endblock %}
