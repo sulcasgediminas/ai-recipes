@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Recipe
 from .forms import RecipeForm
 from django.contrib.auth.forms import User
@@ -14,6 +14,9 @@ import html
 from django.core.files.base import ContentFile
 import urllib.request
 
+from django.views.decorators.csrf import csrf_protect
+from django.contrib import messages
+
 
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
@@ -27,31 +30,26 @@ def ai_recipe(request):
 
             # Generate the recipe and image using OpenAI API
             recipe_prompt = f"<br>Begin with generating list of ingredients, including measurements(using those ingredients {ingredients} plus add extra needed and use {cuisine} cuisine). <br>After, describe the preparation steps, including cooking time and temperatures. <br>Finally, provide any suggestions for serving or plating the dish."
-            # recipe_prompt = f"Start with a title for the recipe. Generate a recipe using the following ingredients: {ingredients}. The cuisine should be {cuisine}. Please provide clear and concise instructions for the recipe. \nBegin with a list of ingredients, including measurements. \nThen, describe the preparation steps, including cooking times and temperatures. \nFinally, provide any suggestions for serving or plating the dish. Use simple and concise language that is easy to follow. Avoid unnecessary or overly complicated language."
-            recipe_completion = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "user", "content": recipe_prompt}
-                ]
+            recipe_completion = openai.Completion.create(
+                model="text-davinci-003",
+                prompt=recipe_prompt,
+                max_tokens=512,
+                temperature=0.5,
+                n= 1,
             )
-            recipe_text = recipe_completion.choices[0].message['content']
-            formatted_content = html.escape(recipe_text)
-            formatted_content = formatted_content.replace('\n', '<br>')
-            formatted_content = f'<pre>{formatted_content}</pre>'
+            recipe_text = recipe_completion.choices[0].text.strip()
 
             # Generate the title using OpenAI API
-            title_prompt = f"<br>Generate a title for the recipe using the generated recipe:<br>{formatted_content}"
-            title_completion = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "user", "content": title_prompt}
-                ]
+            title_prompt = f"<br>Generate a title for the recipe using the generated recipe:<br>{recipe_text}"
+            title_completion = openai.Completion.create(
+                model="text-davinci-003",
+                prompt=title_prompt,
+                max_tokens=512,
+                temperature=0.5
             )
-            title_text = title_completion.choices[0].message['content']
-            formatted_title = html.escape(title_text)
-            formatted_title = formatted_title.replace('\n', '<br>')
-            formatted_title = f'<pre>{formatted_title}</pre>'
-            # recipe = Recipe.objects.create(title=title_text, user=request.user)
+            title_text = title_completion.choices[0].text.strip()
+
+            # recipe = Recipe.objects.create(name=title_text, user=request.user)
 
             # Generate the image using OpenAI API
             image_prompt = f"dish of {ingredients} from {cuisine}"
@@ -69,7 +67,7 @@ def ai_recipe(request):
             # Pass the generated recipe and image to the template
             context = {
                 "title": title_text,
-                "recipe": formatted_content,
+                "recipe": recipe_text,
                 "image_base64": image_base64,
             }
 
@@ -86,3 +84,35 @@ def ai_recipe(request):
     else:
         form = RecipeForm()
     return render(request, 'recipe_form.html', {'form': form})
+
+
+
+@csrf_protect
+def register(request):
+    if request.method == "POST":
+        # pasiimame reikšmes iš registracijos formos
+        username = request.POST['username']
+        email = request.POST['email']
+        password = request.POST['password']
+        password2 = request.POST['password2']
+        # tikriname, ar sutampa slaptažodžiai
+        if password == password2:
+            # tikriname, ar neužimtas username
+            if User.objects.filter(username=username).exists():
+                messages.error(request, f'Vartotojo vardas {username} užimtas!')
+                return redirect('register')
+            else:
+                # tikriname, ar nėra tokio pat email
+                if User.objects.filter(email=email).exists():
+                    messages.error(request, f'Vartotojas su el. paštu {email} jau užregistruotas!')
+                    return redirect('register')
+                else:
+                    # jeigu viskas tvarkoje, sukuriame naują vartotoją
+                    User.objects.create_user(username=username, email=email, password=password)
+                    messages.info(request, f'Vartotojas {username} užregistruotas!')
+                    return redirect('login')
+        else:
+            messages.error(request, 'Slaptažodžiai nesutampa!')
+            return redirect('register')
+    return render(request, 'register.html')
+
