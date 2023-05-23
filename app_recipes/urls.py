@@ -4,8 +4,14 @@ from . import views
 
 
 urlpatterns = [
-    path('recipe/', ai_recipe, name='recipe-and-image'),
-    path('', ai_recipe, name='ai-recipe'),
+    path('', views.index, name='index'),
+    path('recipes/', views.recipes, name='recipes'),
+    path('recipes/<int:recipe_id>', views.recipe, name='recipe'),
+    path('search/', views.search, name='search'),
+    path('generate/', ai_recipe, name='generate'),
+
+    # path('myrecipes/', views.RecipesByUserListView.as_view(), name='my-recipes'),
+
     path('accounts/', include('django.contrib.auth.urls')),
     path('register/', views.register, name='register'),
 ]

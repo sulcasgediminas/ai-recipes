@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Recipes by Artificial Intelligence</h1>
+  <p>Generate recipe from chosen ingredient and cuisine!</p>
+  <p>Or you can search one from {{ num_recipes }} already generated recipes <a href="{% url 'recipes' %}">here.</a> </p>
+{% endblock %}

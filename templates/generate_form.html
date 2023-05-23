@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Create a Recipe</h2>
+  <form method="post" class="my-form" enctype="multipart/form-data">
+    {% csrf_token %}
+    <ul class="form-list">
+      <li>
+        <label for="{{ form.ingredients.id_for_label }}">Enter ingredients:</label>
+        {{ form.ingredients }}
+      </li>
+      <li>
+        <label for="{{ form.cuisine.id_for_label }}">Enter cuisine:</label>
+        {{ form.cuisine }}
+      </li>
+    </ul>
+    <button type="submit">Create Recipe</button>
+  </form>
+{% endblock %}

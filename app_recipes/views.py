@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from .models import Recipe
 from .forms import RecipeForm
 from django.contrib.auth.forms import User
-
+from django.http import HttpResponse
 
 import openai
 import os
@@ -16,6 +16,11 @@ import urllib.request
 
 from django.views.decorators.csrf import csrf_protect
 from django.contrib import messages
+
+from django.shortcuts import get_object_or_404
+
+from django.db.models import Q
+from django.views import generic
 
 
 openai.api_key = os.getenv('OPENAI_API_KEY')
@@ -52,7 +57,7 @@ def ai_recipe(request):
             # recipe = Recipe.objects.create(name=title_text, user=request.user)
 
             # Generate the image using OpenAI API
-            image_prompt = f"dish of {ingredients} from {cuisine}"
+            image_prompt = f"dish of {ingredients} from {cuisine}."
             image_completion = openai.Image.create(
                 prompt=image_prompt,
                 size="256x256",
@@ -75,7 +80,7 @@ def ai_recipe(request):
             user = request.user
             title = title_text
 
-            recipe = Recipe(user=user, name=title, cuisine=cuisine, ingredients=ingredients)
+            recipe = Recipe(user=user, name=title, cuisine=cuisine, ingredients=ingredients, instructions=recipe_text)
             recipe.image_file.save(f"{title_text}.jpg", ContentFile(urllib.request.urlopen(image_url).read()))
             recipe.save()
 
@@ -83,7 +88,7 @@ def ai_recipe(request):
 
     else:
         form = RecipeForm()
-    return render(request, 'recipe_form.html', {'form': form})
+    return render(request, 'generate_form.html', {'form': form})
 
 
 
@@ -115,4 +120,42 @@ def register(request):
             messages.error(request, 'Slaptažodžiai nesutampa!')
             return redirect('register')
     return render(request, 'register.html')
+
+
+
+
+def index(request):
+    num_recipes = Recipe.objects.all().count()
+
+    context = {
+        'num_recipes': num_recipes,
+    }
+
+    return render(request, 'index.html', context=context)
+
+def recipes(request):
+    recipes = Recipe.objects.all()
+    context = {
+        'recipes': recipes
+    }
+    return render(request, 'recipes.html', context=context)
+
+def recipe(request, recipe_id):
+    single_recipe = get_object_or_404(Recipe, pk=recipe_id)
+    return render(request, 'recipe.html', {'recipe': single_recipe})
+
+def search(request):
+    query = request.GET.get('query')
+    search_results = Recipe.objects.filter(Q(name__icontains=query) | Q(ingredients__icontains=query))
+    return render(request, 'search.html', {'recipes': search_results, 'query': query})
+
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+class RecipesByUserListView(LoginRequiredMixin, generic.ListView):
+    model = Recipe
+    template_name = 'user_recipes.html'
+    paginate_by = 3
+
+    def get_queryset(self):
+        return Recipe.objects.filter(user=self.request.user).order_by('uploaded_at')
 

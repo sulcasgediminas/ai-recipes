@@ -1,24 +1,23 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Recipe Generator</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<body>
-    <div id="recipe-container"></div>
-    <div id="image-container"></div>
-    <script>
-        $.getJSON("/generate_recipe_and_image/", function(data) {
-            var recipe = data["recipe"];
-            var imageBase64 = data["image"];
-            var imageSrc = "data:image/jpeg;base64," + imageBase64;
-            $("#recipe-container").text(recipe);
-            $("#image-container").html('<img src="' + imageSrc + '">');
-        });
-    </script>
-</body>
-</html>
+
+{% load static %}
+    <div class="container recipe">
+        {% if recipe.image_file %}
+            <img src="{{ recipe.image_file.url }}" style="margin-bottom: 20px;">
+        {% else %}
+            <img src="{% static 'media/images/default.jpeg' %}" style="margin-bottom: 20px;">
+        {% endif %}
+        <h4>{{ recipe.name }}</h4>
+        <h6>Recipe asked by: {{ recipe.user }}</h6>
+        <hr/>
+        <p>{{ recipe.instructions|linebreaksbr|safe }}</p>
+        <hr/>
+        <br/>
+        <h5>We also have these recipes by {{ recipe.user }}:</h5>
+        {% for r in recipe.user.recipe_set.all %}
+        <li><a href="{% url 'recipe' r.id %}">{{ r.name }}</a></li> 
+        {% endfor %}
+    </div>
 {% endblock %}

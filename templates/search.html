@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Paieškos pagal "{{query}}" rezultatai:</h1>
+  </br>
+  {% if recipes %}
+  <ul>
+    {% for recipe in recipes %}
+      <li>
+        <a href="{% url 'recipe' recipe.id %}">{{ recipe.name }}</a> ({{recipe.user}})
+      </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    <p>Oops. Nieko neradome :(</p>
+  {% endif %}
+
+  {% endblock %}

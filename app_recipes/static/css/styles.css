@@ -1,0 +1,32 @@
+.sidebar-nav {
+    margin-top: 20px;
+    padding: 0;
+    list-style: none;
+}
+
+.my-form .form-list {
+    list-style-type: none;
+    /* Add more CSS rules for the list */
+  }
+  
+.my-form .form-list li {
+    margin-bottom: 10px;
+/* Add more CSS rules for each list item */
+}
+
+.my-form .form-list label {
+    margin-right: 10px;
+    white-space: nowrap;
+}
+
+.my-form .form-list input[type="text"],
+.my-form .form-list select {
+    display: block;
+    width: 50%;
+}
+  
+.nav-item {
+    margin-top: 20px;
+    padding: 0;
+    list-style: none;
+}

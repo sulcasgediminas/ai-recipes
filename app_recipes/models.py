@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 
+
 class Recipe(models.Model):
     name = models.CharField(max_length=200)
     cuisine = models.CharField(max_length=200, blank=True, null=True)

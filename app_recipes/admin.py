@@ -3,8 +3,11 @@ from .models import Recipe
 from django.utils.html import format_html
 # Register your models here.
 
+
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'ingredients', 'user', 'cuisine', 'image_thumbnail')
+    list_display = ('id', 'name', 'ingredients', 'user', 'cuisine', 'image_thumbnail')
+    list_filter = ('ingredients', 'user', 'cuisine')
+    search_fields = ('ingredients', 'name')
 
     def image_thumbnail(self, obj):
         if obj.image_file:

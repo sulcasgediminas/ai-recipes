@@ -4,15 +4,16 @@
   <div class="container mt-5">
     <div class="row">
       <div class="col-md-6">
-        <h3>Title:</h3>
-        <p>{{ title|safe }}</p>
-        <h3>Generated Recipe:</h3>
+        <h4>{{ title|safe }}</h4>
+        <br></br>
         <p>{{ recipe|linebreaksbr|safe }}</p>
       </div>
       <div class="col-md-6">
-        <h3>Generated Image:</h3>
+        <!-- <h3>Generated Image:</h3> -->
         <img src="data:image/png;base64,{{ image_base64 }}" alt="Generated Image" width="256" height="256">
       </div>
     </div>
   </div>
 {% endblock %}
+
+
