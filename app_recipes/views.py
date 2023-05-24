@@ -57,7 +57,7 @@ def ai_recipe(request):
             # recipe = Recipe.objects.create(name=title_text, user=request.user)
 
             # Generate the image using OpenAI API
-            image_prompt = f"dish of {ingredients} from {cuisine}."
+            image_prompt = f"dish of {ingredients} from {cuisine}. Food photography, photorealistic style, 50mm, morning light, healthy mood."
             image_completion = openai.Image.create(
                 prompt=image_prompt,
                 size="256x256",
@@ -153,9 +153,16 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 class RecipesByUserListView(LoginRequiredMixin, generic.ListView):
     model = Recipe
-    template_name = 'user_recipes.html'
-    paginate_by = 3
+    template_name = 'my_recipes.html'
+    paginate_by = 10
 
     def get_queryset(self):
-        return Recipe.objects.filter(user=self.request.user).order_by('uploaded_at')
+        # Retrieve the current logged-in user
+        user = self.request.user
+
+        # Filter the recipes based on the logged-in user
+        queryset = super().get_queryset().filter(user=user)
+
+        return queryset
+
 
