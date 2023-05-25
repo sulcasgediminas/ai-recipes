@@ -9,6 +9,18 @@
         {% else %}
             <img src="{% static 'media/images/default.jpeg' %}" style="margin-bottom: 20px;">
         {% endif %}
+
+        <p>Likes: {{ recipe.like_count }}</p>
+
+        {% if user.is_authenticated %}
+            <form action="{% url 'like_recipe' recipe.id %}" method="POST">
+                {% csrf_token %}
+                <button type="submit", name="recipe_id", value="{{ recipe.id }}", class="btn btn-primary btn-lm">Like</button>
+            </form>
+        {% else %}
+            <p><a href="{% url 'login' %}"> Login to like this recipe.</a></p>
+        {% endif %}
+        <br/>
         <h4>{{ recipe.name }}</h4>
         <h6>Recipe asked by: {{ recipe.user }}</h6>
         <hr/>

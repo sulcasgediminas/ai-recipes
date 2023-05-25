@@ -5,7 +5,7 @@ from django.utils.html import format_html
 
 
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'ingredients', 'user', 'cuisine', 'image_thumbnail')
+    list_display = ('id', 'name', 'ingredients', 'user', 'cuisine', 'image_thumbnail', 'display_likes')
     list_filter = ('ingredients', 'user', 'cuisine')
     search_fields = ('ingredients', 'name')
 
@@ -18,4 +18,10 @@ class RecipeAdmin(admin.ModelAdmin):
 
     image_thumbnail.short_description = 'Thumbnail'
 
+    def display_likes(self, obj):
+        return obj.likes.count()
+
+
+
 admin.site.register(Recipe, RecipeAdmin)
+

@@ -2,7 +2,8 @@ from django.shortcuts import render, redirect
 from .models import Recipe
 from .forms import RecipeForm
 from django.contrib.auth.forms import User
-from django.http import HttpResponse
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
 import openai
 import os
@@ -21,9 +22,30 @@ from django.shortcuts import get_object_or_404
 
 from django.db.models import Q
 from django.views import generic
+from .forms import RecipeForm
+
+
+
+def like_recipe(request, recipe_id):
+    recipe = get_object_or_404(Recipe, pk=recipe_id)
+
+    if request.method == 'POST':
+        if request.user.is_authenticated:
+            # Save the like for the current user
+            recipe.likes.add(request.user)
+            recipe.save()
+        else:
+            # Handle the case when the user is not authenticated
+            # You can redirect them to the login page or display an error message
+            return HttpResponseRedirect(reverse('login'))  # Assuming you have a 'login' URL name
+
+    # Redirect back to the recipe detail page
+    return HttpResponseRedirect(reverse('recipe', args=[recipe_id]))
+
 
 
 openai.api_key = os.getenv('OPENAI_API_KEY')
+
 
 # Define the function to generate a recipe and an image
 def ai_recipe(request):
@@ -164,5 +186,7 @@ class RecipesByUserListView(LoginRequiredMixin, generic.ListView):
         queryset = super().get_queryset().filter(user=user)
 
         return queryset
+
+from django.contrib.auth.decorators import login_required
 
 
