@@ -52,6 +52,8 @@ def ai_recipe(request):
     if request.method == 'POST':
         form = RecipeForm(request.POST)
         if form.is_valid():
+            
+            
             ingredients = form.cleaned_data['ingredients']
             cuisine = form.cleaned_data['cuisine']
 
@@ -67,7 +69,7 @@ def ai_recipe(request):
             recipe_text = recipe_completion.choices[0].text.strip()
 
             # Generate the title using OpenAI API
-            title_prompt = f"<br>Generate a title for the recipe using the generated recipe:<br>{recipe_text}"
+            title_prompt = f"Generate a title for the recipe using the generated recipe:{recipe_text}. Do not add word 'title'. And do not use quotation marks."
             title_completion = openai.Completion.create(
                 model="text-davinci-003",
                 prompt=title_prompt,
@@ -79,7 +81,7 @@ def ai_recipe(request):
             # recipe = Recipe.objects.create(name=title_text, user=request.user)
 
             # Generate the image using OpenAI API
-            image_prompt = f"dish of {ingredients} from {cuisine}. Food photography, photorealistic style, 50mm, morning light, healthy mood."
+            image_prompt = f"dish of {ingredients} from {cuisine}. Professional Michelin Star gourmet food photography, contemporary, depth of field, 32k, super-resolution, vivid –q 2 –ar 1:1"
             image_completion = openai.Image.create(
                 prompt=image_prompt,
                 size="256x256",
@@ -106,7 +108,8 @@ def ai_recipe(request):
             recipe.image_file.save(f"{title_text}.jpg", ContentFile(urllib.request.urlopen(image_url).read()))
             recipe.save()
 
-            return render(request, "recipe_and_image.html", context)
+            return HttpResponseRedirect(reverse('recipe', args=[recipe.id]))
+            
 
     else:
         form = RecipeForm()

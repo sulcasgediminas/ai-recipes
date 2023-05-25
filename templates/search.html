@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1>Paieškos pagal "{{query}}" rezultatai:</h1>
+  <h1>Results for "{{query}}" :</h1>
   </br>
   {% if recipes %}
   <ul>
@@ -12,7 +12,7 @@
     {% endfor %}
   </ul>
   {% else %}
-    <p>Oops. Nieko neradome :(</p>
+    <p>Oops. Nothing was found :(</p>
   {% endif %}
 
   {% endblock %}

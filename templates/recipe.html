@@ -1,8 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-{% load static %}
+    {% load static %}
     <div class="container recipe">
         {% if recipe.image_file %}
             <img src="{{ recipe.image_file.url }}" style="margin-bottom: 20px;">
@@ -11,15 +10,37 @@
         {% endif %}
 
         <p>Likes: {{ recipe.like_count }}</p>
+        <div class="button-group">
+            <div class="like-button">
+                
+                {% if user.is_authenticated %}
+                    <form action="{% url 'like_recipe' recipe.id %}" method="POST">
+                        {% csrf_token %}
+                        <button type="submit" name="recipe_id" value="{{ recipe.id }}" class="btn btn-primary btn-lm">Like</button>
+                    </form>
+                {% else %}
+                    <p><a href="{% url 'login' %}">Login to like this recipe.</a></p>
+                {% endif %}
+            </div>
 
-        {% if user.is_authenticated %}
-            <form action="{% url 'like_recipe' recipe.id %}" method="POST">
-                {% csrf_token %}
-                <button type="submit", name="recipe_id", value="{{ recipe.id }}", class="btn btn-primary btn-lm">Like</button>
-            </form>
-        {% else %}
-            <p><a href="{% url 'login' %}"> Login to like this recipe.</a></p>
-        {% endif %}
+            <div class="share-button">
+                <button id="shareButton" class="btn btn-secondary btn-lm">Share</button>
+                <input type="text" id="recipeUrlInput" style="display: none;" value="{{ request.build_absolute_uri }}">
+            </div>
+        </div>
+
+        <script>
+            document.getElementById("shareButton").addEventListener("click", function() {
+                var recipeUrlInput = document.getElementById("recipeUrlInput");
+                recipeUrlInput.style.display = "block";
+                recipeUrlInput.select();
+                document.execCommand("copy");
+                recipeUrlInput.style.display = "none";
+                alert("Recipe URL copied!");
+            });
+        </script>
+
+        <br/>
         <br/>
         <h4>{{ recipe.name }}</h4>
         <h6>Recipe asked by: {{ recipe.user }}</h6>
@@ -29,7 +50,7 @@
         <br/>
         <h5>We also have these recipes by {{ recipe.user }}:</h5>
         {% for r in recipe.user.recipe_set.all %}
-        <li><a href="{% url 'recipe' r.id %}">{{ r.name }}</a></li> 
+            <li><a href="{% url 'recipe' r.id %}">{{ r.name }}</a></li> 
         {% endfor %}
     </div>
 {% endblock %}
